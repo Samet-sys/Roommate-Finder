@@ -1,8 +1,11 @@
+// src/components/ChatPortal.tsx
+
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, Home, X } from 'lucide-react';
 import { Avatar } from '../profile/Avatar';
 import { ChatWindow } from './ChatWindow';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSocket } from '../../contexts/SocketContext';
 import type { Message, User, Listing } from '../../types';
 
 interface ChatThread {
@@ -14,40 +17,127 @@ interface ChatThread {
 
 export function ChatPortal() {
   const { user } = useAuth();
+  const { socket, isConnected } = useSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [selectedThread, setSelectedThread] = useState<ChatThread | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Yardımcı Fonksiyon: Oda İsmi Oluşturma
+  const getRoomName = (listingId: string, otherUserId: string): string => {
+    return `listing_${listingId}_${otherUserId}`;
+  };
+
+  // Thread'leri Fetch Etme Fonksiyonu
+  const fetchThreads = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/messages/threads', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch threads');
+
+      const data: ChatThread[] = await response.json();
+      setThreads(data);
+    } catch (error) {
+      console.error('Error fetching threads:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // İlk Render'da Thread'leri Fetch Et
   useEffect(() => {
     if (!user) return;
-
-    const fetchThreads = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/messages/threads', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch threads');
-        
-        const data = await response.json();
-        setThreads(data);
-      } catch (error) {
-        console.error('Error fetching threads:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
     fetchThreads();
   }, [user]);
 
+  // Socket.IO Bağlantısını Kurma ve Event'leri Dinleme
+  useEffect(() => {
+    if (socket) {
+      // Yeni mesaj alındığında
+      socket.on('newMessage', (message: Message) => {
+        const { sender, receiver, listing } = message;
+        const otherUserId = sender._id === user._id ? receiver._id : sender._id;
+        const roomName = getRoomName(listing._id, otherUserId);
+
+        // Eğer mesaj seçili thread'e ait değilse unreadCount artır
+        if (
+          !selectedThread ||
+          selectedThread.listing._id !== listing._id ||
+          selectedThread.otherUser._id !== otherUserId
+        ) {
+          setThreads((prevThreads) =>
+            prevThreads.map((thread) => {
+              if (thread.listing._id === listing._id && thread.otherUser._id === otherUserId) {
+                return { ...thread, unreadCount: thread.unreadCount + 1, lastMessage: message };
+              }
+              return thread;
+            })
+          );
+        } else {
+          // Eğer seçili thread ise, sadece lastMessage'ı güncelle
+          setThreads((prevThreads) =>
+            prevThreads.map((thread) => {
+              if (thread.listing._id === listing._id && thread.otherUser._id === otherUserId) {
+                return { ...thread, lastMessage: message };
+              }
+              return thread;
+            })
+          );
+        }
+      });
+
+      return () => {
+        socket.off('newMessage');
+      };
+    }
+  }, [socket, selectedThread, user]);
+
   if (!user) return null;
 
-  // Tüm unread mesajları topla
+  // Toplam unread mesaj sayısı
   const totalUnread = threads.reduce((sum, thread) => sum + thread.unreadCount, 0);
+
+  // Thread'e Tıklanınca
+  const handleThreadClick = async (thread: ChatThread) => {
+    setSelectedThread(thread);
+    setIsOpen(true);
+
+    // Odaya Katıl
+    if (socket) {
+      socket.emit('joinRoom', { listingId: thread.listing._id, otherUserId: thread.otherUser._id });
+    }
+
+    // Mesajları Okundu Olarak İşaretle
+    try {
+      const response = await fetch(`http://localhost:3000/api/messages/read/${thread.otherUser._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to mark messages as read');
+
+      // State'i Güncelle
+      setThreads((prevThreads) =>
+        prevThreads.map((t) => {
+          if (t.listing._id === thread.listing._id && t.otherUser._id === thread.otherUser._id) {
+            return { ...t, unreadCount: 0 };
+          }
+          return t;
+        })
+      );
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
 
   return (
     <>
@@ -68,12 +158,9 @@ export function ChatPortal() {
       {isOpen && (
         <div className="fixed bottom-20 right-4 w-96 bg-white dark:bg-gray-700 rounded-lg shadow-xl text-gray-900 dark:text-gray-100">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-blue-600 dark:bg-slate-800">
-            <h2 className="font-semibold text-lg text-gray-50">Messages</h2>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-50 hover:text-gray-300"
-            >
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="font-semibold text-lg">Messages</h2>
+            <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -104,29 +191,21 @@ export function ChatPortal() {
                     {threads.map((thread) => (
                       <button
                         key={`${thread.listing._id}-${thread.otherUser._id}`}
-                        onClick={() => setSelectedThread(thread)}
-                        className="w-full p-4 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-start space-x-3 text-left"
+                        onClick={() => handleThreadClick(thread)}
+                        className="w-full p-4 hover:bg-gray-50 flex items-start space-x-3 text-left"
                       >
-                        <Avatar
-                          src={thread.otherUser.avatar}
-                          alt={thread.otherUser.name}
-                          size="md"
-                        />
+                        <Avatar src={thread.otherUser.avatar} alt={thread.otherUser.name} size="md" />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
-                            <h3 className="font-medium truncate">
-                              {thread.otherUser.name}
-                            </h3>
+                            <h3 className="font-medium truncate">{thread.otherUser.name}</h3>
                             {thread.unreadCount > 0 && (
                               <span className="bg-blue-600 dark:bg-slate-600 text-white text-xs px-2 py-1 rounded-full">
                                 {thread.unreadCount}
                               </span>
                             )}
                           </div>
-                          <p className="text-sm truncate">
-                            {thread.lastMessage.content}
-                          </p>
-                          <div className="flex items-center mt-1 text-xs text-opacity-50">
+                          <p className="text-sm text-gray-500 truncate">{thread.lastMessage.content}</p>
+                          <div className="flex items-center mt-1 text-xs text-gray-500">
                             <Home className="w-3 h-3 mr-1" />
                             <span className="truncate">{thread.listing.title}</span>
                           </div>

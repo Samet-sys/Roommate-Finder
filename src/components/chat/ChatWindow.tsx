@@ -1,3 +1,5 @@
+// src/components/ChatWindow.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -11,10 +13,16 @@ interface ChatWindowProps {
   listingId: string;
   onBack: () => void;
   showBackButton?: boolean;
-  showListingsButton?: boolean,
+  showListingsButton?: boolean;
 }
 
-export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showListingsButton}: ChatWindowProps) {
+export function ChatWindow({
+  otherUser,
+  listingId,
+  onBack,
+  showBackButton = false,
+  showListingsButton = false,
+}: ChatWindowProps) {
   const { user } = useAuth();
   const { socket } = useSocket();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,14 +39,14 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
           `http://localhost:3000/api/messages/${listingId}/${otherUser._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
           }
         );
-        
+
         if (!response.ok) throw new Error('Failed to fetch messages');
-        
-        const data = await response.json();
+
+        const data: Message[] = await response.json();
         setMessages(data);
         setIsLoading(false);
       } catch (error) {
@@ -49,7 +57,7 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
 
     fetchMessages();
 
-    // Mark messages as read
+    // Mesajları Okundu Olarak İşaretle
     const markMessagesAsRead = async () => {
       try {
         await fetch(
@@ -57,8 +65,8 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
           {
             method: 'PUT',
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
           }
         );
       } catch (error) {
@@ -69,20 +77,24 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
     markMessagesAsRead();
 
     // Socket event listeners
-    socket?.on('newMessage', (message: Message) => {
+    const handleNewMessage = (message: Message) => {
       if (
         (message.sender._id === otherUser._id && message.receiver._id === user._id) ||
         (message.sender._id === user._id && message.receiver._id === otherUser._id)
       ) {
-        setMessages(prev => [...prev, message]);
+        setMessages((prev) => [...prev, message]);
+
+        // Eğer mesajı gönderen diğer kullanıcıysa, mesajları okundu olarak işaretle
         if (message.sender._id === otherUser._id) {
           markMessagesAsRead();
         }
       }
-    });
+    };
+
+    socket?.on('newMessage', handleNewMessage);
 
     return () => {
-      socket?.off('newMessage');
+      socket?.off('newMessage', handleNewMessage);
     };
   }, [user, otherUser, listingId, socket]);
 
@@ -94,17 +106,16 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
     if (!newMessage.trim() || !socket || !user) return;
 
     const messageData = {
-      sender: user._id,
       receiver: otherUser._id,
       listing: listingId,
-      content: newMessage.trim()
+      content: newMessage.trim(),
     };
 
     socket.emit('sendMessage', messageData);
     setNewMessage('');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -124,18 +135,18 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
   }
 
   return (
-    <div className="flex flex-col h-[500px] bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-900 dark:text-gray-100">
+    <div className="flex flex-col h-full">
       {/* Chat Header */}
       <div className="relative p-4 bg-gray-100 dark:bg-gray-900  flex justify-center items-center">
         {/* Conditionally Render Back Button */}
         {showBackButton && (
-        <button
-          onClick={onBack}
-          className="absolute left-4 flex items-center text-blue-600 dark:text-slate-200 hover:text-blue-800 dark:hover:text-slate-500 font-semibold"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back
-        </button>
+          <button
+            onClick={onBack}
+            className="absolute left-4 flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+          </button>
         )}
 
         {/* Avatar and Contact Info */}
@@ -149,22 +160,22 @@ export function ChatWindow({ otherUser, listingId, onBack, showBackButton, showL
         {/* Go to Listing Button */}
         {showListingsButton && (
           <button
-          onClick={handleGoToListing}
-          className="absolute right-4 flex items-center text-blue-600 dark:text-slate-200 hover:text-blue-800 dark:hover:text-slate-500 font-semibold"
-        >
-          Listing
-          <Home className="w-5 h-5 ml-2" />
-        </button>
+            onClick={handleGoToListing}
+            className="absolute right-4 flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            Listing
+            <Home className="w-5 h-5 ml-2" />
+          </button>
         )}
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => {
-          const isOwnMessage = message.sender._id === user?._id;
+        {messages.map((message) => {
+          const isOwnMessage = message.sender._id === user._id;
           return (
             <div
-              key={index}
+              key={message._id} // Unique key kullanımı
               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
             >
               <div

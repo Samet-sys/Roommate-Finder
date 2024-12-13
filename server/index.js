@@ -7,10 +7,12 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import listingRoutes from './routes/listings.js';
 import messageRoutes from './routes/messages.js';
+
 import Message from './models/Message.js';
 
 dotenv.config();
@@ -62,12 +64,27 @@ io.use((socket, next) => {
   }
 });
 
+// Yardımcı Fonksiyon: Oda İsmi Oluşturma
+function getRoomName(userId1, userId2) {
+  const sortedIds = [userId1, userId2].sort();
+  return `room_${sortedIds[0]}_${sortedIds[1]}`;
+}
+
 // Socket.IO Connection Handler
 io.on('connection', (socket) => {
   console.log('User connected:', socket.userId);
 
+  // Belirli bir odaya katılma
+  socket.on('joinRoom', ({ otherUserId }) => {
+    const roomName = getRoomName(socket.userId, otherUserId);
+    socket.join(roomName);
+    console.log(`User ${socket.userId} joined room: ${roomName}`);
+  });
+
+  // Yeni mesaj gönderme
   socket.on('sendMessage', async (messageData) => {
     try {
+      // messageData örneği: { receiver, listing, content }
       const message = new Message({
         sender: socket.userId,
         receiver: messageData.receiver,
@@ -77,12 +94,16 @@ io.on('connection', (socket) => {
 
       const savedMessage = await message.save();
       const populatedMessage = await Message.findById(savedMessage._id)
-        .populate('sender', 'name avatar')
-        .populate('receiver', 'name avatar');
+        .populate('sender', 'name avatar occupation')
+        .populate('receiver', 'name avatar occupation');
 
-      io.emit('newMessage', populatedMessage);
+      // Oda ismi oluşturma
+      const roomName = getRoomName(socket.userId, messageData.receiver);
+      io.to(roomName).emit('newMessage', populatedMessage);
+
     } catch (error) {
       console.error('Error saving message:', error);
+      socket.emit('error', { message: 'Failed to send message' });
     }
   });
 
@@ -114,7 +135,6 @@ app.use(express.static(distPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
-
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

@@ -38,11 +38,11 @@ const sampleUsers = [
     isVerified: true,
   },
   {
-    name: 'Alex Chen',
-    email: 'alex@example.com',
+    name: 'Samet Alkan',
+    email: 'samet@example.com',
     password: 'password123',
     gender: 'other',
-    phone: '+1234567892',
+    phone: '+5061573378',
     occupation: 'Digital Artist',
     bio: 'Creative professional, music lover',
     preferences: {
