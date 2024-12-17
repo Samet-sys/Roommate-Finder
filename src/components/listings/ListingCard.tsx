@@ -2,12 +2,15 @@ import React from 'react';
 import { MapPin, Home, Calendar } from 'lucide-react';
 import { Avatar } from '../profile/Avatar';
 import type { Listing } from '../../types';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface ListingCardProps {
   listing: Listing;
 }
 
 export function ListingCard({ listing }: ListingCardProps) {
+  const { t } = useTranslation();
+  
   const handleClick = () => {
     window.location.href = `/listing/${listing._id}`;
   };
@@ -24,7 +27,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           className="w-full h-full object-cover rounded-t-xl"
         />
         <div className="absolute top-3 right-3 bg-white dark:bg-slate-950  px-2 py-1 rounded-full text-sm font-semibold">
-          ₺{listing.price}/month
+          ₺{listing.price}/{t("month")}
         </div>
       </div>
       
@@ -39,12 +42,12 @@ export function ListingCard({ listing }: ListingCardProps) {
           
           <div className="flex items-center text-gray-600 dark:text-gray-400">
             <Home className="w-4 h-4 mr-2" />
-            <span className="text-sm capitalize">{listing.roomType} Room</span>
+            <span className="text-sm capitalize">{t(`card_room_${listing.roomType}`)}</span>
           </div>
           
           <div className="flex items-center text-gray-600 dark:text-gray-400">
             <Calendar className="w-4 h-4 mr-2" />
-            <span className="text-sm">Available from {new Date(listing.availableFrom).toLocaleDateString()}</span>
+            <span className="text-sm">{t("available_from")} {new Date(listing.availableFrom).toLocaleDateString()}</span>
           </div>
         </div>
 
@@ -66,17 +69,17 @@ export function ListingCard({ listing }: ListingCardProps) {
           <div className="mt-3 flex flex-wrap gap-2">
             {listing.host.preferences?.smoking && (
               <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                Smoking allowed
+                 {t('card_smoking_allowed')}
               </span>
             )}
             {listing.host.preferences?.pets && (
               <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                Pet friendly
+                {t('card_pet_friendly')}
               </span>
             )}
             {listing.host.preferences?.nightLife && (
               <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-full">
-                Night life friendly
+                {t('card_nightlife_friendly')}
               </span>
             )}
           </div>

@@ -10,6 +10,7 @@ import { ChatWindow } from '../chat/ChatWindow';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Listing, Message } from '../../types';
 import { ChatPortal } from '../chat/ChatPortal';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface ListingDetailProps {
   listingId: string;
@@ -17,6 +18,7 @@ interface ListingDetailProps {
 
 export function ListingDetail({ listingId }: ListingDetailProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +37,12 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
       try {
         const response = await fetch(`http://localhost:3000/api/listings/${listingId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch listing');
+          throw new Error(t("error_loading_listing"));
         }
         const data = await response.json();
         setListing(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load listing');
+        setError(err instanceof Error ? err.message : t("error_loading_listing"));
       } finally {
         setIsLoading(false);
       }
@@ -83,7 +85,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
   }, [isOwner, listingId, listing, user, showInquiries]);
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) {
+    if (!window.confirm(t("delete_listing"))) {
       return;
     }
 
@@ -97,12 +99,12 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete listing');
+        throw new Error(t("error_loading_listing"));
       }
 
       window.location.href = '/profile';
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete listing');
+      setError(err instanceof Error ? err.message : t("error_loading_listing"));
       setIsDeleting(false);
     }
   };
@@ -143,14 +145,14 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
       <div className="min-h-screen flex items-center justify-center text-gray-900 dark:text-gray-100">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Listing</h2>
-          <p className="text-gray-600 dark:text-gray-300">{error || 'Listing not found'}</p>
+          <p className="text-gray-600 dark:text-gray-300">{error || t("listing_not_found")}</p>
           <Button
             variant="primary"
             size="sm"
             className="mt-4"
             onClick={() => window.history.back()}
           >
-            Go Back
+           {t("go_back")}
           </Button>
         </div>
       </div>
@@ -168,7 +170,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
               className="hidden md:flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
             >
               <ArrowLeft className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">{t("back_button")}</span>
             </button>
             
             {/* Logo */}
@@ -195,7 +197,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                     className="flex items-center"
                   >
                     <Edit2 className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Edit</span>
+                    <span className="hidden sm:inline">{t("edit_listing")}</span>
                   </Button>
                   <Button 
                     variant="secondary" 
@@ -206,7 +208,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                   >
                     <Trash2 className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">
-                      {isDeleting ? 'Deleting...' : 'Delete'}
+                      {isDeleting ? t("deleting_listing") : t("delete_listing")}
                     </span>
                   </Button>
                 </>
@@ -214,11 +216,11 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                 <>
                   <Button variant="outline" size="sm" onClick={handleShare} className="flex items-center">
                     <Share2 className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Share</span>
+                    <span className="hidden sm:inline">{t("share_button")}</span>
                   </Button>
                   <Button variant="outline" size="sm" className="flex items-center">
                     <Heart className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Save</span>
+                    <span className="hidden sm:inline">{t("save_button")}</span>
                   </Button>
                 </>
               )}
@@ -246,21 +248,21 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Home className="w-5 h-5 mr-2" />
-                  <span className="capitalize">{listing.roomType} Room</span>
+                  <span className="capitalize">{t(`filters_room_${listing.roomType}`)} {t("room_type")}</span>
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Calendar className="w-5 h-5 mr-2" />
-                  <span>Available from {new Date(listing.availableFrom).toLocaleDateString()}</span>
+                  <span>{t("available_from")} {new Date(listing.availableFrom).toLocaleDateString()}</span>
                 </div>
               </div>
 
               <div className="border-t border-gray-200 pt-6">
-                <h2 className="text-lg font-semibold mb-4">Description</h2>
+                <h2 className="text-lg font-semibold mb-4">{t("description")}</h2>
                 <p className="text-gray-600 dark:text-gray-300">{listing.description}</p>
               </div>
 
               <div className="border-t border-gray-200 pt-6 mt-6">
-                <h2 className="text-lg font-semibold mb-4">Amenities</h2>
+                <h2 className="text-lg font-semibold mb-4">{t("amenities")}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {listing.amenities.map((amenity) => (
                     <div
@@ -276,7 +278,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
 
               {/* Roommate Preferences Section */}
               <div className="border-t border-gray-200 pt-6 mt-6">
-                <h2 className="text-lg font-semibold mb-4">Roommate Preferences</h2>
+                <h2 className="text-lg font-semibold mb-4">{t("roommate_preferences")}</h2>
                 <ListingPreferences preferences={listing.preferences} />
               </div>
             </div>
@@ -288,7 +290,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
               <div className="text-center mb-6">
                 <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                   ₺{listing.price}
-                  <span className="text-lg text-gray-500 font-normal">/month</span>
+                  <span className="text-lg text-gray-500 font-normal"> / {t("month")}</span>
                 </div>
               </div>
 
@@ -317,7 +319,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                   {/* Simgeyi sola sabitledik */}
                   <MessageCircle className="absolute left-4 w-6 h-6" />
                   {/* Yazıyı ortaladık */}
-                  <span>{showInquiries ? 'Hide Inquiries' : 'View Inquiries'}</span>
+                  <span>{showInquiries ? t("hide_inquiries") : t("view_inquiries")}</span>
               </Button>
               
               ) : (
@@ -328,7 +330,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                   onClick={() => setShowChat(!showChat)}
                 >
                   <MessageCircle className="absolute left-6 w-6 h-6" />
-                  <span>{showChat ? 'Hide Chat' : 'Contact Host'}</span>
+                  <span>{showChat ? t("hide_chat") : t("contact_host")}</span>
                 </Button>
               )}
 
@@ -340,7 +342,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
                       <LoadingSpinner />
                     </div>
                   ) : inquiries.length === 0 ? (
-                    <p className="text-gray-500 text-center">No inquiries yet</p>
+                    <p className="text-gray-500 text-center">{t('no_inquiries')}</p>
                   ) : (
                     <div className="space-y-4">
                       {inquiries.map((inquiry) => (

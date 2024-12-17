@@ -5,9 +5,11 @@ import { ArrowLeft } from 'lucide-react';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import { useTranslation } from '../../translate/useTranslations';
 
 export function SettingsPage() {
   const { darkMode, toggleDarkMode } = useDarkMode();
+  const { t } = useTranslation();
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function SettingsPage() {
   
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to delete account');
+        throw new Error(errorData.message || t('delete_account_error'));
       }
 
       // Close the confirmation modal before showing the success modal
@@ -42,7 +44,7 @@ export function SettingsPage() {
         setIsDeleting(false);
       }, 300);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete account');
+      setError(err instanceof Error ? err.message : t('delete_account_error'));
       setIsDeleting(false);
     }
   };  
@@ -60,7 +62,7 @@ export function SettingsPage() {
             className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-gray-100"
           >
             <ArrowLeft className="w-5 h-5 sm:mr-2" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">{t('back')}</span>
           </button>
           <a href="/" className="flex items-center text-2xl font-bold text-blue-600 dark:text-slate-200">
           <img 
@@ -68,7 +70,7 @@ export function SettingsPage() {
                 alt="Site Icon" 
                 className="w-8 h-8 mr-2"
               />
-            RoommateFinder
+            {t('header_brand')}
           </a>
           <div className="w-16" /> {/* Spacer to balance layout */}
         </div>
@@ -78,12 +80,12 @@ export function SettingsPage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-slate-950  rounded-lg shadow p-6 space-y-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Settings
+          {t('settings_title')}
           </h1>
 
           {/* Dark Mode Toggle */}
           <div className="flex items-center justify-between">
-            <span className="text-gray-700 dark:text-gray-300 font-medium">Dark Mode</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">{t('dark_mode')}</span>
             <button
               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
                 darkMode ? 'bg-slate-600' : 'bg-gray-400'
@@ -106,7 +108,7 @@ export function SettingsPage() {
               onClick={() => setIsConfirmationModalVisible(true)}
               disabled={isDeleting}
             >
-              {isDeleting ? <LoadingSpinner /> : 'Delete Account'}
+              {isDeleting ? <LoadingSpinner /> : t('delete_account')}
             </Button>
           </div>
         </div>
@@ -115,19 +117,19 @@ export function SettingsPage() {
       {/* Delete Account Confirmation Modal */}
       <Modal
         isVisible={isConfirmationModalVisible}
-        title="Confirm Deletion"
-        message="Are you sure you want to delete your account? This action cannot be undone."
+        title={t('confirm_deletion_title')}
+        message={t('confirm_deletion_message')}
         onClose={() => setIsConfirmationModalVisible(false)}
         onConfirm={handleDeleteAccount}
-        confirmLabel={isDeleting ? <LoadingSpinner /> : 'Delete'}
-        closeLabel="Cancel"
+        confirmLabel={isDeleting ? <LoadingSpinner /> : t('delete')}
+        closeLabel={t('cancel')}
       />
 
       {/* Success Modal */}
       <Modal
         isVisible={isSuccessModalVisible}
-        title="Account Deleted"
-        message="Your account has been deleted successfully. You will now be logged out."
+        title={t('account_deleted_title')}
+        message={t('account_deleted_message')}
         onClose={() => {
           setIsSuccessModalVisible(false);
           logout(); // Perform logout

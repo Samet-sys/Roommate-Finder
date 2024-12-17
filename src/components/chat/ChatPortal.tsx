@@ -4,6 +4,7 @@ import { Avatar } from '../profile/Avatar';
 import { ChatWindow } from './ChatWindow';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Message, User, Listing } from '../../types';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface ChatThread {
   otherUser: User;
@@ -13,6 +14,7 @@ interface ChatThread {
 }
 
 export function ChatPortal() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -69,7 +71,7 @@ export function ChatPortal() {
         <div className="fixed bottom-20 right-4 w-96 bg-white dark:bg-gray-700 rounded-lg shadow-xl text-gray-900 dark:text-gray-100">
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-blue-600 dark:bg-slate-800">
-            <h2 className="font-semibold text-lg text-gray-50">Messages</h2>
+            <h2 className="font-semibold text-lg text-gray-50">{t('messages')}</h2>
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-50 hover:text-gray-300"
@@ -93,11 +95,12 @@ export function ChatPortal() {
                 {isLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-blue-600 dark:border-slate-600"></div>
+                    <p className="ml-2">{t('chat_loading')}</p>
                   </div>
                 ) : threads.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
                     <MessageCircle className="w-12 h-12 mb-2" />
-                    <p>No messages yet</p>
+                    <p>{t('no_messages_yet')}</p>
                   </div>
                 ) : (
                   <div className="divide-y dark:hover:text-gray-100">

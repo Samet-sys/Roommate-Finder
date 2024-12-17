@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../translate/useTranslations';
 
 export function SignInForm() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,13 +29,13 @@ export function SignInForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Invalid credentials');
+        throw new Error(data.message || t('invalid_cred'));
       }
 
       login(data.token, data.user);
       window.location.href = '/';
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('login_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +52,7 @@ export function SignInForm() {
                 alt="Site Icon" 
                 className="w-8 h-8 mr-2"
               />
-            RoommateFinder
+            {t('header_brand')}
           </a>
         </div>
       </header>
@@ -60,12 +62,12 @@ export function SignInForm() {
         <div className="max-w-md w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-              Sign in to your account
+            {t('sign_in_title')}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
+            {t('dont_have_account')}{' '}
               <a href="/register" className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-500 dark:hover:text-blue-400">
-                Register here
+              {t('register_here')}
               </a>
             </p>
           </div>
@@ -80,7 +82,7 @@ export function SignInForm() {
             <div className="rounded-md shadow-sm space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email address
+                {t('email_address')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -95,14 +97,14 @@ export function SignInForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
-                    placeholder="you@example.com"
+                    placeholder={t('email_address_placeholder')}
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Password
+                {t('password')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -131,9 +133,9 @@ export function SignInForm() {
                 className="w-full flex justify-center items-center"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : (
+                {isLoading ? t('signing_in') : (
                   <>
-                    Sign in
+                    {t('sign_in')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </>
                 )}

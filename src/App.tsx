@@ -17,6 +17,7 @@ import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import type { FilterOptions, Listing } from './types';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { Settings } from 'lucide-react';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const initialFilters: FilterOptions = {
   priceRange: [0, 50000],
@@ -170,6 +171,7 @@ export default function App() {
   const verificationMatch = path.match(/^\/auth\/verify-email$/);
 
   return (
+    <LanguageProvider>
       <DarkModeProvider>
         {editListingMatch ? (
           <EditListingForm listingId={editListingMatch[1]} />
@@ -228,5 +230,6 @@ export default function App() {
             </div>
         )}
       </DarkModeProvider>
+    </LanguageProvider>
   );
 }

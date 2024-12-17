@@ -8,11 +8,12 @@ import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { ChatPortal } from '../chat/ChatPortal';
+import { useTranslation } from '../../translate/useTranslations';
 
 export function ProfilePage() {
   const { logout } = useAuth();
   const { isLoading, error, profileData, updateProfile } = useProfile();
-
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -25,15 +26,15 @@ export function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-900 dark:text-gray-100">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Profile</h2>
-          <p className="text-gray-600 dark:text-gray-300">{error || 'Failed to load profile data'}</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('profile_error_title')}</h2>
+          <p className="text-gray-600 dark:text-gray-300">{error || t('profile_error_message')}</p>
           <Button
             variant="primary"
             size="sm"
             className="mt-4"
             onClick={() => window.location.reload()}
           >
-            Try Again
+            {t('profile_try_again')}
           </Button>
         </div>
       </div>
@@ -52,7 +53,7 @@ export function ProfilePage() {
                   alt="Site Icon" 
                   className="w-8 h-8 mr-2"
                 />
-              RoommateFinder
+              {t("header_brand")}
             </a>
             <div className="flex items-center space-x-2">
               <Button 
@@ -62,7 +63,7 @@ export function ProfilePage() {
                   className="flex items-center"
                 >
                 <Settings className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Settings</span>
+                <span className="hidden sm:inline">{t('profile_settings')}</span>
               </Button>
               <Button 
                   variant="secondary" 
@@ -71,7 +72,7 @@ export function ProfilePage() {
                   className="flex items-center"
                 >
                 <LogOut className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
+                <span className="hidden sm:inline">{t('profile_sign_out')}</span>
               </Button>
             </div>
           </div>

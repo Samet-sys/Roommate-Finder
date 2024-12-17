@@ -6,6 +6,8 @@ import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { cities, districts } from '../../utils/locations';
 import type { Listing } from '../../types';
 import type { ListingPreferences } from '../../types/preferences';
+import { useTranslation } from '../../translate/useTranslations';
+
 interface EditListingFormProps {
   listingId: string;
 }
@@ -16,6 +18,7 @@ interface LocationState {
 }
 
 export function EditListingForm({ listingId }: EditListingFormProps) {
+  const { t } = useTranslation();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,7 +34,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
       try {
         const response = await fetch(`http://localhost:3000/api/listings/${listingId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch listing');
+          throw new Error(t('fetchListingError'));
         }
         const data = await response.json();
         setListing(data);
@@ -42,7 +45,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
 
         setExistingImages(data.images || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load listing');
+        setError(err instanceof Error ? err.message : t('loadListingError'));
       } finally {
         setIsLoading(false);
       }
@@ -101,13 +104,13 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update listing');
+        throw new Error(t('updateListingError'));
       }
 
       
       window.location.href = `/profile`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update listing');
+      setError(err instanceof Error ? err.message : t('updateListingError'));
     } finally {
       setIsSaving(false);
     }
@@ -160,14 +163,14 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
       <div className="min-h-screen flex items-center justify-center text-gray-900 dark:text-gray-100">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Listing</h2>
-          <p className="text-gray-600 dark:text-gray-300">{error || 'Listing not found'}</p>
+          <p className="text-gray-600 dark:text-gray-300">{error || t('errorLoadingListing')}</p>
           <Button
             variant="primary"
             size="sm"
             className="mt-4"
             onClick={() => window.history.back()}
           >
-            Go Back
+            {t('goBack')}
           </Button>
         </div>
       </div>
@@ -184,7 +187,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           >
             <ArrowLeft className="w-5 h-5 sm:mr-2" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">{t('back')}</span>
           </button>
           <a href="/" className="flex items-center text-2xl font-bold text-blue-600 dark:text-slate-200">
           <img 
@@ -192,7 +195,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                 alt="Site Icon" 
                 className="w-8 h-8 mr-2"
               />
-            RoommateFinder
+            {t('header_brand')}
           </a>
           <div className="w-16" /> {/* Spacer to balance layout */}
         </div>
@@ -201,7 +204,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-slate-950  rounded-lg shadow-sm p-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Edit Listing
+          {t('editListing')}
           </h1>
 
           {error && (
@@ -223,7 +226,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
 
             {/* Existing Images */}
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Existing Images</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">{t("existing_images")}</h3>
               <div className="flex gap-4 flex-wrap">
                 {existingImages.map((imageUrl, index) => (
                   <div key={index} className="relative">
@@ -246,7 +249,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title
+              {t('title')}
               </label>
               <input
                 type="text"
@@ -260,7 +263,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Location */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Location
+              {t('location')}
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <select
@@ -269,7 +272,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                   className="w-full px-3 py-2 border rounded-md"
                   required
                 >
-                  <option value="">Select City</option>
+                  <option value="">{t('select_city')}</option>
                   {cities.map((city) => (
                     <option key={city} value={city}>
                       {city}
@@ -284,7 +287,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                   required
                   disabled={!location.city}
                 >
-                  <option value="">Select District</option>
+                  <option value="">{t('select_district')}</option>
                   {location.city && districts[location.city]?.map((district) => (
                     <option key={district} value={district}>
                       {district}
@@ -297,7 +300,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Monthly Rent (₺)
+              {t('monthly_rent')}
               </label>
               <input
                 type="number"
@@ -313,7 +316,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Room Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Room Type
+              {t('room_type')}
               </label>
               <select
                 value={listing.roomType}
@@ -321,15 +324,15 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                 className="w-full px-3 py-2 border rounded-md"
                 required
               >
-                <option value="private">Private Room</option>
-                <option value="shared">Shared Room</option>
+                <option value="private">{t('private_room')}</option>
+                <option value="shared">{t('shared_room')}</option>
               </select>
             </div>
 
             {/* Available From */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Available From
+              {t('available_from')}
               </label>
               <input
                 type="date"
@@ -343,7 +346,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description
+              {t('description')}
               </label>
               <textarea
                 required
@@ -357,7 +360,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
             {/* Amenities */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Amenities
+              {t('amenities')}
               </label>
               <div className="flex gap-2 mb-2">
                 <input
@@ -365,11 +368,11 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                   value={newAmenity}
                   onChange={(e) => setNewAmenity(e.target.value)}
                   className="flex-1 px-3 py-2 border rounded-md"
-                  placeholder="e.g., WiFi, Air Conditioning"
+                  placeholder={t("add_amenity_placeholder")}
                 />
                 <Button variant="outline" size="sm" onClick={addAmenity} className="flex items-center">
                   <Plus className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Add</span>
+                  <span className="hidden sm:inline">{t('add')}</span>
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -393,28 +396,28 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
 
             {/* Preferences */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Roommate Preferences</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{t("roommate_preferences")}</h3>
               
               {/* Gender Preference */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Preferred Gender
+                {t('preferred_gender')}
                 </label>
                 <select
                   value={listing.preferences.gender}
                   onChange={(e) => updatePreference('gender', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="any">Any</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                  <option value="any">{t('any')}</option>
+                  <option value="male">{t('male')}</option>
+                  <option value="female">{t('female')}</option>
                 </select>
               </div>
 
               {/* Age Range */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Age Range
+                {t('age_range')}
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -449,16 +452,16 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
               {/* Occupation */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Preferred Occupation
+                {t('preferred_occupation')}
                 </label>
                 <select
                   value={listing.preferences.occupation}
                   onChange={(e) => updatePreference('occupation', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="any">Any</option>
-                  <option value="student">Student</option>
-                  <option value="professional">Professional</option>
+                  <option value="any">{t('any')}</option>
+                  <option value="student">{t('student')}</option>
+                  <option value="professional">{t('professional')}</option>
                 </select>
               </div>
 
@@ -471,7 +474,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                     onChange={(e) => updatePreference('smoking', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  Smoking allowed
+                  {t('smoking_allowed')}
                 </label>
                 
                 <label className="flex items-center">
@@ -481,7 +484,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                     onChange={(e) => updatePreference('pets', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  Pets allowed
+                  {t('pets_allowed')}
                 </label>
                 
                 <label className="flex items-center">
@@ -491,7 +494,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                     onChange={(e) => updatePreference('nightLife', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  Night life friendly
+                  {t('night_life_friendly')}
                 </label>
               </div>
             </div>
@@ -504,7 +507,7 @@ export function EditListingForm({ listingId }: EditListingFormProps) {
                 size="lg"
                 disabled={isSaving}
               >
-                {isSaving ? 'Saving Changes...' : 'Save Changes'}
+                {isSaving ? t("saving_changes") : t("save_changes")}
               </Button>
             </div>
           </form>

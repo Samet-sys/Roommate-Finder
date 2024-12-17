@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useTranslation } from '../../translate/useTranslations'; 
 
 interface HeroProps {
   onSearch: (searchTerm: string) => void;
@@ -8,6 +9,7 @@ interface HeroProps {
 
 export function Hero({ onSearch }: HeroProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,20 +28,19 @@ export function Hero({ onSearch }: HeroProps) {
       
       <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Find Your Perfect Room <br />
-          <span className="text-slate-200">and Ideal Roommate</span>
+          {t('hero_title_line1')} <br />
+          <span className="text-slate-200">{t('hero_title_line2')}</span>
         </h1>
         
         <p className="mt-6 text-xl text-slate-100 max-w-3xl">
-          Connect with like-minded people, find affordable accommodation, and make your
-          next move easier. Perfect for young professionals and international students.
+          {t('hero_description')}
         </p>
 
         <div className="mt-10 max-w-xl">
           <form onSubmit={handleSubmit} className="bg-white p-3 rounded-lg shadow-lg flex">
             <input
               type="text"
-              placeholder="Search by location, title, or description..."
+              placeholder={t('hero_search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 border-0 focus:ring-0 px-4 text-slate-600"

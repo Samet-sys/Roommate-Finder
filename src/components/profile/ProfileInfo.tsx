@@ -3,6 +3,7 @@ import { User, Phone, Briefcase, Edit2, Save, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Avatar } from './Avatar';
 import type { User as UserType, UserPreferences } from '../../types';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface ProfileInfoProps {
   user: UserType;
@@ -16,6 +17,8 @@ const defaultPreferences: UserPreferences = {
 };
 
 export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
+  const { t } = useTranslation();
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<UserType>({
     ...user,
@@ -91,11 +94,11 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
   return (
     <div className="bg-white dark:bg-slate-950  rounded-lg shadow p-6">
       <div className="flex justify-between items-start mb-6">
-        <h2 className="text-xl font-semibold">Profile Information</h2>
+        <h2 className="text-xl font-semibold">{t("profile_information")}</h2>
         {!isEditing ? (
           <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
             <Edit2 className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Edit Profile</span>
+            <span className="hidden sm:inline">{t("edit_profile")}</span>
           </Button>
         ) : (
           <div className="flex space-x-2">
@@ -106,7 +109,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
               disabled={isLoading}
             >
               <Save className="w-4 h-4 mr-2" />
-              {isLoading ? 'Saving...' : 'Save'}
+              {isLoading ? t("saving") : t("save")}
             </Button>
             <Button 
               variant="secondary" 
@@ -141,7 +144,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Full Name
+            {t("full_name")}
             </label>
             {isEditing ? (
               <input
@@ -160,7 +163,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Phone
+            {t("phone")}
             </label>
             {isEditing ? (
               <input
@@ -179,7 +182,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Occupation
+            {t("occupation")}
             </label>
             {isEditing ? (
               <input
@@ -198,7 +201,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Bio
+            {t("bio")}
             </label>
             {isEditing ? (
               <textarea
@@ -214,7 +217,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-3">Preferences</h3>
+          <h3 className="text-lg font-medium mb-3">{t("preferences")}</h3>
           <div className="space-y-2">
             {isEditing ? (
               <>
@@ -225,7 +228,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
                     onChange={(e) => updatePreference('smoking', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Smoking allowed</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{t("smoking_allowed")}</span>
                 </label>
                 
                 <label className="flex items-center">
@@ -235,7 +238,7 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
                     onChange={(e) => updatePreference('pets', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Pet friendly</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{t("pet_friendly")}</span>
                 </label>
                 
                 <label className="flex items-center">
@@ -245,24 +248,24 @@ export function ProfileInfo({ user, onUpdateProfile }: ProfileInfoProps) {
                     onChange={(e) => updatePreference('nightLife', e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Night life friendly</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{t("night_life_friendly")}</span>
                 </label>
               </>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {editedUser.preferences.smoking && (
                   <span className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-sm">
-                    Smoking allowed
+                    {t("smoking_allowed")}
                   </span>
                 )}
                 {editedUser.preferences.pets && (
                   <span className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-sm">
-                    Pet friendly
+                    {t("pet_friendly")}
                   </span>
                 )}
                 {editedUser.preferences.nightLife && (
                   <span className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-sm">
-                    Night life friendly
+                    {t("night_life_friendly")}
                   </span>
                 )}
               </div>

@@ -5,6 +5,7 @@ import { ImageUpload } from './ImageUpload';
 import { cities, districts } from '../../utils/locations';
 import type { Listing } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface FormData {
   title: string;
@@ -52,6 +53,7 @@ const initialFormState: FormData = {
 };
 
 export function NewListingForm() {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [formData, setFormData] = useState<FormData>(initialFormState);
   const [newAmenity, setNewAmenity] = useState('');
@@ -92,12 +94,12 @@ export function NewListingForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create listing');
+        throw new Error(t("failed_to_create"));
       }
 
       window.location.href = '/profile';
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create listing');
+      setError(err instanceof Error ? err.message : t("failed_to_create"));
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +152,7 @@ export function NewListingForm() {
                 alt="Site Icon" 
                 className="w-8 h-8 mr-2"
               />
-              RoommateFinder
+              {t('header_brand')}
             </a>
           </div>
         </div>
@@ -159,7 +161,7 @@ export function NewListingForm() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-slate-950  rounded-lg shadow-sm p-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Create New Listing
+          {t("create_listing")}
           </h1>
 
           {error && (
@@ -179,7 +181,7 @@ export function NewListingForm() {
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title
+              {t("title")}
               </label>
               <input
                 type="text"
@@ -187,14 +189,14 @@ export function NewListingForm() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full px-3 py-2 border rounded-md"
-                placeholder="e.g., Cozy Room in Downtown"
+                placeholder={t("title_placeholder")}
               />
             </div>
 
             {/* Location Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Location
+              {t("location")}
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
@@ -205,7 +207,7 @@ export function NewListingForm() {
                     className="w-full pl-10 px-3 py-2 border rounded-md appearance-none"
                     required
                   >
-                    <option value="">Select City</option>
+                    <option value="">{t("select_city")}</option>
                     {cities.map((city) => (
                       <option key={city} value={city}>
                         {city}
@@ -222,7 +224,7 @@ export function NewListingForm() {
                     required
                     disabled={!location.city}
                   >
-                    <option value="">Select District</option>
+                    <option value="">{t("select_district")}</option>
                     {location.city && districts[location.city]?.map((district) => (
                       <option key={district} value={district}>
                         {district}
@@ -236,7 +238,7 @@ export function NewListingForm() {
             {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Monthly Rent (₺)
+              {t("monthly_rent")} (₺)
               </label>
               <input
                 type="number"
@@ -252,7 +254,7 @@ export function NewListingForm() {
             {/* Room Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Room Type
+              {t("room_type")}
               </label>
               <select
                 value={formData.roomType}
@@ -260,15 +262,15 @@ export function NewListingForm() {
                 className="w-full px-3 py-2 border rounded-md"
                 required
               >
-                <option value="private">Private Room</option>
-                <option value="shared">Shared Room</option>
+                <option value="private">{t("private_room")}</option>
+                <option value="shared">{t("shared_room")}</option>
               </select>
             </div>
 
             {/* Available From */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Available From
+              {t("available_from")}
               </label>
               <input
                 type="date"
@@ -282,7 +284,7 @@ export function NewListingForm() {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description
+              {t("description")}
               </label>
               <textarea
                 required
@@ -290,14 +292,14 @@ export function NewListingForm() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full px-3 py-2 border rounded-md"
                 rows={4}
-                placeholder="Describe your space, house rules, and ideal roommate..."
+                placeholder={t("describe_space")}
               />
             </div>
 
             {/* Amenities */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Amenities
+              {t("amenities")}
               </label>
               <div className="flex gap-2 mb-2">
                 <input
@@ -305,7 +307,7 @@ export function NewListingForm() {
                   value={newAmenity}
                   onChange={(e) => setNewAmenity(e.target.value)}
                   className="flex-1 px-3 py-2 border rounded-md"
-                  placeholder="e.g., WiFi, Air Conditioning"
+                  placeholder={t("add_amenity_placeholder")}
                 />
                 <Button type="button" onClick={addAmenity} variant="outline">
                   <Plus className="w-4 h-4" />
@@ -337,7 +339,7 @@ export function NewListingForm() {
               {/* Gender Preference */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Preferred Gender
+                {t("preferred_gender")}
                 </label>
                 <select
                   value={formData.host.preferences.gender}
@@ -353,16 +355,16 @@ export function NewListingForm() {
                   })}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="any">Any</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                  <option value="any">{t("any")}</option>
+                  <option value="male">{t("male")}</option>
+                  <option value="female">{t("female")}</option>
                 </select>
               </div>
 
               {/* Age Range */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Age Range
+                {t("age_range")}
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -382,7 +384,7 @@ export function NewListingForm() {
                       }
                     })}
                     className="w-full px-3 py-2 border rounded-md"
-                    placeholder="Min Age"
+                    placeholder={t("min_age")}
                   />
                   <input
                     type="number"
@@ -401,7 +403,7 @@ export function NewListingForm() {
                       }
                     })}
                     className="w-full px-3 py-2 border rounded-md"
-                    placeholder="Max Age"
+                    placeholder={t("max_age")}
                   />
                 </div>
               </div>
@@ -409,7 +411,7 @@ export function NewListingForm() {
               {/* Occupation */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Preferred Occupation
+                {t("preferred_occupation")}
                 </label>
                 <select
                   value={formData.host.preferences.occupation}
@@ -425,9 +427,9 @@ export function NewListingForm() {
                   })}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="any">Any</option>
-                  <option value="student">Student</option>
-                  <option value="professional">Professional</option>
+                  <option value="any">{t("any")}</option>
+                  <option value="student">{t("student")}</option>
+                  <option value="professional">{t("professional")}</option>
                 </select>
               </div>
 
@@ -449,7 +451,7 @@ export function NewListingForm() {
                     })}
                     className="rounded border-gray-300 dark:border-gray-700 mr-2"
                   />
-                  Smoking allowed
+                  {t("smoking_allowed")}
                 </label>
                 
                 <label className="flex items-center">
@@ -468,7 +470,7 @@ export function NewListingForm() {
                     })}
                     className="rounded border-gray-300 dark:border-gray-700 mr-2"
                   />
-                  Pets allowed
+                  {t("pets_allowed")}
                 </label>
                 
                 <label className="flex items-center">
@@ -487,7 +489,7 @@ export function NewListingForm() {
                     })}
                     className="rounded border-gray-300 dark:border-gray-700 text-slate-600 mr-2"
                   />
-                  Night life friendly
+                  {t("night_life_friendly")}
                 </label>
               </div>
             </div>
@@ -500,7 +502,7 @@ export function NewListingForm() {
                 size="lg"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Creating Listing...' : 'Create Listing'}
+                {isSubmitting ? t("creating_listing") : t("create_listing_button")}
               </Button>
             </div>
           </form>

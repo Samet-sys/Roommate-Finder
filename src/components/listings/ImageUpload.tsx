@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Upload, X} from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
@@ -15,6 +16,7 @@ export function ImageUpload({
   previewUrls = [],
   onRemoveImage
 }: ImageUploadProps) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<string[]>(previewUrls);
   const [error, setError] = useState<string | null>(null);
@@ -23,19 +25,19 @@ export function ImageUpload({
     const files = Array.from(event.target.files || []);
     
     if (files.length + previews.length > maxImages) {
-      setError(`You can only upload up to ${maxImages} images`);
+      setError(t("image_upload_max_limit"));
       return;
     }
 
     const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
     if (invalidFiles.length > 0) {
-      setError('Only image files are allowed');
+      setError(t('image_upload_invalid_type'));
       return;
     }
 
     const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      setError('Images must be less than 5MB');
+      setError(t('image_upload_size_limit'));
       return;
     }
 
@@ -56,9 +58,9 @@ export function ImageUpload({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Images</h3>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('image_upload_title')}</h3>
           <p className="text-sm text-gray-500">
-            Add up to {maxImages} images of your space
+          {t('image_upload_description')}
           </p>
         </div>
         {previews.length < maxImages && (
@@ -69,7 +71,7 @@ export function ImageUpload({
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Upload Images</span>
+            <span className="hidden sm:inline">{t('image_upload_button')}</span>
           </Button>
         )}
       </div>

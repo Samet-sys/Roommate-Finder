@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../translate/useTranslations';
 
 interface RegisterFormData {
   name: string;
@@ -36,6 +37,7 @@ const INITIAL_FORM_STATE: RegisterFormData = {
 };
 
 export function RegisterForm() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<RegisterFormData>(INITIAL_FORM_STATE);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -59,12 +61,12 @@ export function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        throw new Error(data.message || t('registration_failed'));
       } 
 
       setIsModalVisible(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : t('registration_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +88,7 @@ export function RegisterForm() {
                 alt="Site Icon" 
                 className="w-8 h-8 mr-2"
               />
-            RoommateFinder
+            {t("header_brand")}
           </a>
         </div>
       </header>
@@ -96,12 +98,12 @@ export function RegisterForm() {
         <div className="max-w-md w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-              Create your account
+            {t('registration_title')}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
+            {t('already_have_account')}{' '}
               <a href="/signin" className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-500 dark:hover:text-blue-400">
-                Sign in
+              {t('sign_in')}
               </a>
             </p>
           </div>
@@ -116,7 +118,7 @@ export function RegisterForm() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Full Name
+                {t('full_name')}
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -130,14 +132,14 @@ export function RegisterForm() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
-                    placeholder="John Doe"
+                    placeholder="Jackie Chen"
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email Address
+                  {t("email_address")}
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -151,14 +153,14 @@ export function RegisterForm() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
-                    placeholder="you@example.com"
+                    placeholder={t("email_address_placeholder")}
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Gender
+                {t('gender')}
                 </label>
                 <div className="mt-1">
                   <select
@@ -169,16 +171,16 @@ export function RegisterForm() {
                     onChange={(e) => setFormData({ ...formData, gender: e.target.value as 'male' | 'female' | 'other' })}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
                   >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value={t('gender_male')}>Male</option>
+                    <option value={t('gender_female')}>Female</option>
+                    <option value={t('gender_other')}>Other</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Phone Number
+                  {t("phone_number")}
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -191,14 +193,14 @@ export function RegisterForm() {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
-                    placeholder="+1 234 567 8900"
+                    placeholder="+90 555 555 5555"
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="occupation" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Occupation
+                  {t("occupation")}
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -219,7 +221,7 @@ export function RegisterForm() {
 
               <div>
                 <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Bio
+                  {t("bio")}
                 </label>
                 <div className="mt-1">
                   <textarea
@@ -229,14 +231,14 @@ export function RegisterForm() {
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
-                    placeholder="Tell us a bit about yourself..."
+                    placeholder={t("bio_placeholder")}
                   />
                 </div>
               </div>
 
               {/* Preferences */}
               <div className="pt-4">
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Preferences</h3>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t("preferences")}</h3>
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3">
                     <input
@@ -251,7 +253,7 @@ export function RegisterForm() {
                       })}
                       className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-slate-600 focus:ring-slate-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Smoking allowed</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{t("smoking_allowed")}</span>
                   </label>
                   
                   <label className="flex items-center space-x-3">
@@ -267,7 +269,7 @@ export function RegisterForm() {
                       })}
                       className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-slate-600 focus:ring-slate-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Pet friendly</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{t("pet_friendly")}</span>
                   </label>
                   
                   <label className="flex items-center space-x-3">
@@ -283,14 +285,14 @@ export function RegisterForm() {
                       })}
                       className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-slate-600 focus:ring-slate-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Night life friendly</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{t("night_life_friendly")}</span>
                   </label>
                 </div>
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Password
+                {t("password")}
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -309,7 +311,7 @@ export function RegisterForm() {
                   />
                 </div>
                 <p className="mt-1 text-sm text-gray-500">
-                  Must be at least 6 characters
+                {t("password_hint")}
                 </p>
               </div>
             </div>
@@ -322,7 +324,7 @@ export function RegisterForm() {
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating account...' : 'Create account'}
+                {isLoading ? t('creating_account') : t('create_account')}
               </Button>
             </div>
           </form>
@@ -332,12 +334,12 @@ export function RegisterForm() {
       {/* Success Modal */}
       <Modal
         isVisible={isModalVisible}
-        title="Registration Successful"
-        message="Please check your email to verify your account."
+        title={t('registration_successful')}
+        message={t('verify_email_message')}
         onClose={() => setIsModalVisible(false)}
         onConfirm={handleRedirect} // Pass redirection handler
-        confirmLabel={isLoading ? <LoadingSpinner /> : 'Go to Sign In'}
-        closeLabel="Close"
+        confirmLabel={t('go_to_sign_in')}
+        closeLabel={t('close')}
       />
     </div>
   );
