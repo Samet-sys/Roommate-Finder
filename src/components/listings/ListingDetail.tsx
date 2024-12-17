@@ -336,7 +336,7 @@ export function ListingDetail({ listingId }: ListingDetailProps) {
 
               {showInquiries && isOwner && (
                 <div className="mt-6">
-                  <h4 className="font-medium mb-4">Recent Inquiries</h4>
+                  <h4 className="font-medium mb-4">{t("recent_inquiries")}</h4>
                   {isLoadingInquiries ? (
                     <div className="flex justify-center py-4">
                       <LoadingSpinner />

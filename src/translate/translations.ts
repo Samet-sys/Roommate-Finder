@@ -276,7 +276,7 @@ export const translations: Record<string, Record<string, string>> = {
     "view_inquiries": "İstekleri Görüntüle",
     "hide_inquiries": "İstekleri Gizle",
     "no_inquiries": "Henüz bir istek yok",
-    "recent_inquiries": "Son Sorgular",
+    "recent_inquiries": "Son İstekler",
     "description": "Açıklama",
     "amenities": "Olanaklar",
     "roommate_preferences": "Oda Arkadaşı Tercihleri",
